@@ -1,0 +1,62 @@
+buildscript {
+    ext.kotlin_version = '2.1.0'
+    repositories {
+        maven {
+            url 'https://maven.myket.ir/'
+        }
+        jcenter()
+        google()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.3.2'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+allprojects {
+    repositories {
+        maven {
+            url 'https://maven.myket.ir/'
+        }
+        google()
+        mavenCentral()
+        jcenter()
+
+//      add for auto location bug
+        configurations.all {
+            resolutionStrategy {
+                force 'androidx.core:core-ktx:1.6.0'
+                force "com.google.android.gms:play-services-location:21.0.1"
+            }
+        }
+    }
+}
+
+rootProject.buildDir = '../build'
+subprojects {
+    project.layout.buildDirectory =  "${rootProject.layout.buildDirectory}/${project.name}"
+
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+}
+
+// The below script
+subprojects {
+    afterEvaluate { project ->
+        if (project.hasProperty('android')) {
+            project.android {
+                if (namespace == null) {
+                    namespace project.group
+                }
+            }
+        }
+    }
+}
+subprojects {
+    project.evaluationDependsOn(':app')
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
+}
